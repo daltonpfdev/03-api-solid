@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tabela de Usuários
+model User {
+  // Campos primários da tabela
+  id            String   @id @default(uuid()) // PK
+  name          String
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+
+  // Relacionamento com a tabela de CheckIn
+  checkIns CheckIn[]
+
+  // Nome da tabela
+  @@map("users")
+}
+
+// Tabela de Check-Ins
+model CheckIn {
+  // Campos primários da tabela
+  id           String    @id @default(uuid())
+  created_at   DateTime  @default(now())
+  validated_at DateTime?
+
+  // PK da tabela de User
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
+
+  // PK da tabela de Gym
+  gym    Gym    @relation(fields: [gym_id], references: [id])
+  gym_id String
+
+  // Nome da tabela
+  @@map("check_ins")
+}
+
+// Tabela de Academias
+model Gym {
+  // Campos primários da tabela
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+  phone       String?
+  latitude    Decimal
+  longitude   Decimal
+
+  // Relacionamento com a tabela de CheckIn
+  checkIns CheckIn[]
+
+  // Nome da tabela
+  @@map("gyms")
+}
