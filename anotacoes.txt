@@ -1,0 +1,76 @@
+. Criar um arquivo chamado .npmrc e escrever em seu conteúdo:
+save-exact=true  # Opção que determina as versões como fixas no projeto
+
+. Criar o projeto Node.js
+$ npm init -y
+
+. instalando o typescript - @types/node - tsx (ferramenta para executar código ts) - tsup (ferramenta para gerar o build do typecript) -   Todas como dependência de desenvolvimento (-D)
+$ npm i typescript @types/node tsx tsup -D
+
+. Iniciando o typescript no projeto (tsconfig.json)
+$ npx tsc --init
+
+. Trocar o campo "target" de tsconfig.json para:
+"target": "ES2020",
+
+. Criar uma pasta chamado src e dois arquivos nessa pasta chamada server.ts e app.ts
+
+
+. Instalar o Fastify
+$ npm i fastify
+
+. Configurações prévias do package.json para scripts do projeto:
+"scripts": {
+  "start:dev": "tsx watch src/server.ts", # Para iniciar o projeto em modo de Desenvolvimento
+  "start": "node build/server.js",        # Para iniciar o projeto em modo de Produção
+  "build": "tsup src --out-dir build"     # Para gerar o build de produção do projeto
+},
+
+. Criar um arquivo chamado .env na raiz do projeto. Esse arquivo será responsável por conter todas as variáveis de ambiente do nosso sistema. Como exemplo, inserir nesse arquivo:
+NODE_ENV=dev
+
+. Instalar uma biblioteca para lidar com as variáveis de ambiente:
+$ npm i dotenv
+
+. Na pasta src, criar uma nova pasta chamda env e dentro dessa pastam criar um arquivo chamado index.ts. Esse arquivo vai ser responsável por validar todas as nossas variáveis de ambiente.
+
+. Para validação dos dados, importar a biblioteca zod:
+# npm i zod
+
+. Esse é um exemplo básico do arquivo index.ts dentro da pasta de env em src. Aqui são feitas as estruturas de validações com o zod, validação dos dados apartir dessa estrutura criada e valiação de erros:
+--------------------------------------------------------------------
+import 'dotenv/config' // Carregando as variáveis de ambiente de .env
+import { z } from 'zod' // Carregando a biblioteca de validação
+
+// Criando a estrutura de validações com o zod
+const envSchema = z.object({
+  NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
+  PORT: z.coerce.number().default(3333),
+})
+
+// Validando todas as variaveis de ambiente
+const _env = envSchema.safeParse(process.env)
+
+// Se alguma variável de ambiente der erro, matar a aplicação informando qual variável de ambiente deu erro
+if (_env.success === false) {
+  console.error('Invalid environment variables', _env.error.format())
+  throw new Error('Invalid environment variables.')
+}
+
+// Se tudo der certo, exportar os dados das variáveis de ambiente para o projeto
+export const env = _env.data
+--------------------------------------------------------------------
+
+. Configurações do eslint, que é uma padronização do projeto que vai ajudar para ter um código limpo. Existem configurações prontas do eslint que são muito boa, uma recomendada é o eslint para projetos Node.js da RocketSeat:
+$ npm i eslint @rocketseat/eslint-config -D
+
+. Criar um arquivo chamado .eslintrc.json e faça a configuração:
+{
+    "extends": [
+        "@rocketseat/eslint-config/node"
+    ]
+}
+
+. Criar também um arquivo .eslintignore e coloque:
+node_modules
+build
